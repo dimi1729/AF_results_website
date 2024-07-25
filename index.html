@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <title>Predictome</title>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="A website to see the predicted interactions between all human mitochondrial proteins">
+        <meta name="keywords" content="Predictions, Interactions, Predictome, Mitochondria">
+        <meta name="author" content="Dimitris Kalafatis">
+
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <!-- This is a comment -->
+        <h1>Predictomes</h1>
+        <p><small>Based on the paper <a href="images/goat.jpg" target="_blank">"Abhinav is the GOAT frfr"</a></small></p>
+        <p>Basically this thing is a tool to help mitochondrial researchers do stuff. We ran alphafold about
+            a million times and here are our results.
+        </p>
+        
+        <hr>
+
+        <h2>How to use</h2>
+        <p>Probably will be super easy. You just like put the uniprot IDs of the two proteins and then it 
+            tells you all of the scores. In case you are stupid, watch this <a href="" target="_blank">video</a> 
+            to learn more. <br>
+            To demonstrate my immense html knowledge, here are the steps in a list
+        </p>
+        <ol>
+            <li>put in uniprot numero uno</li>
+            <li>put in uniprot numero dos</li>
+            <li>press the "go" button</li>
+        </ol>
+    
+        <img src="images/protein_structure.png" alt="Example protein">
+
+        <form action="" method="post">
+            <div>
+                <label for="Uniprot1">First Uniprot ID</label>
+                <input type="text" name="Uniprot1" id="Uniprot1">
+            </div>
+            
+            <div>
+                <label for="Uniprot2">Second Uniprot ID</label>
+                <input type="text" name="Uniprot2" id="Uniprot2">
+            </div>
+
+            <div>
+                <label>What scores would you like to see?</label>
+
+                <label for="dena">
+                    <input type="checkbox" name="score" id="dena" value="dena" checked> dena_10
+                </label>
+                
+                <label for="iptm">
+                    <input type="checkbox" name="score" id="iptm" value="iptm" checked> iptm
+                </label>
+
+                <label for="pDOCKq">
+                    <input type="checkbox" name="score" id="pDOCKq" value="pDOCKq"> pDOCKq
+                </label>
+
+                <label for="ptm">
+                    <input type="checkbox" name="score" id="ptm" value="ptm"> Individual ptm scores
+                </label>
+
+                <label for="pae">
+                    <input type="checkbox" name="score" id="pae" value="pae"> Show PAE plots
+                </label>
+                
+            </div>
+
+            <div>
+                <button id="go-button">Go!</button>
+            </div>
+
+        </form>
+
+        <div id="viewer"></div>
+        
+
+        <script type="module" src="script.js" charset="utf-8" ></script>
+    </body>
+
+</html>

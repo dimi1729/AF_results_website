@@ -1,0 +1,7 @@
+* {
+    background-color: white;
+}
+
+body { margin: 0; }
+canvas { display: block; }
+#viewer { position: absolute; top: 800px; left: 10px; width: 600px; height: 400px; }
