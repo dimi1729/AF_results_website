@@ -16,6 +16,7 @@ loadScript('https://code.jquery.com/jquery-3.6.0.min.js', () => {
 
 let viewer;
 let controls, scene, camera, renderer;
+let downloadLink;
 
 ///////////////// INPUT PREP FUNCTIONS
 function check_uniprot_is_valid(uniprot){
@@ -66,11 +67,20 @@ function loadPDB(pdbFile) {
 
             viewer.zoomTo();
             viewer.render();
+
+            // Update the download link
+            updateDownloadLink(pdbFile);
         },
         error: function(xhr, status, error) {
             console.error("Failed to load PDB file:", status, error);
         }
     });
+}
+
+function updateDownloadLink(pdbFile) {
+    const downloadLink = document.getElementById('download-link');
+    downloadLink.href = pdbFile;
+    downloadLink.style.display = 'block'; // Ensure the link is visible
 }
 
 
@@ -101,16 +111,6 @@ function resetCamera() {
     controls.update();
 }
 
-async function fileExists(path) {
-    try {
-        const response = await fetch(path, { method: 'HEAD' });
-        return response.ok;
-    } catch (error) {
-        console.log(path + "not found");
-        return false;
-    }
-}
-
 let currentShape;
 async function updatePDB(uniprot1, uniprot2) {
     if (currentShape) {
@@ -124,12 +124,10 @@ async function updatePDB(uniprot1, uniprot2) {
 
     if (await fileExists(pdb_path_1)) {
         loadPDB(pdb_path_1);
-    }
-    else if (await fileExists(pdb_path_2)) {
+    } else if (await fileExists(pdb_path_2)) {
         loadPDB(pdb_path_2);
-    }
-    else{
-        alert("One of the proteins is not in the database")
+    } else {
+        console.error("Neither PDB file exists:", pdb_path_1, pdb_path_2);
     }
 
     resetCamera();
@@ -142,20 +140,34 @@ function animate() {
 }
 ///////////////// ANIMATION FUNCTIONS
 
+async function fileExists(url) {
+    try {
+        const response = await fetch(url, { method: 'HEAD' });
+        return response.ok;
+    } catch (error) {
+        console.error("Error checking file existence:", error);
+        return false;
+    }
+}
+
 function init() {
     // Scene setup
     scene = new THREE.Scene();
 
+    const viewerElement = document.getElementById('viewer');
+    const viewerWidth = viewerElement.clientWidth;
+    const viewerHeight = viewerElement.clientHeight;
+
     camera = new THREE.PerspectiveCamera(
         75, // Field of view
-        window.innerWidth / window.innerHeight, // Aspect ratio
+        viewerWidth / viewerHeight, // Aspect ratio
         0.1, // Near clipping plane
         1000 // Far clipping plane
     );
 
     renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    renderer.setSize(viewerWidth, viewerHeight);
+    viewerElement.appendChild(renderer.domElement);
 
     renderer.setClearColor(0xaaaaaa);
 
@@ -167,15 +179,21 @@ function init() {
 
     // Handle window resize
     window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        const newViewerWidth = viewerElement.clientWidth;
+        const newViewerHeight = viewerElement.clientHeight;
+        
+        camera.aspect = newViewerWidth / newViewerHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(newViewerWidth, newViewerHeight);
     });
 
     // Create the 3Dmol.js viewer within the specified container
     viewer = $3Dmol.createViewer("viewer", {
         defaultcolors: $3Dmol.rasmolElementColors
     });
+
+    // Get the download link element
+    downloadLink = document.getElementById('download-link');
 
     // Animation loop
     animate();
@@ -184,3 +202,4 @@ function init() {
     const go_button = document.getElementById('go-button');
     go_button.addEventListener('click', run_two_uniprots);
 }
+
