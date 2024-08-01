@@ -24,7 +24,10 @@ function check_uniprot_is_valid(uniprot){
 }
 
 function check_checkboxes_are_valid(checkboxList){
-    return true;
+    if (checkboxList.includes(true)){
+        return true;
+    }
+    return false;
 }
 
 function check_input_is_valid(uniprot1, uniprot2, checkboxList){
@@ -53,6 +56,7 @@ function loadPDB(pdbFile) {
         method: 'GET',
         success: function(data) {
             console.log("PDB file loaded successfully");
+            showViewer();
             viewer.clear();
             const model = viewer.addModel(data, "pdb");
 
@@ -80,7 +84,12 @@ function loadPDB(pdbFile) {
 function updateDownloadLink(pdbFile) {
     const downloadLink = document.getElementById('download-link');
     downloadLink.href = pdbFile;
-    downloadLink.style.display = 'block'; // Ensure the link is visible
+    downloadLink.style.display = 'block';
+}
+
+function showViewer(){
+    const viewer = document.getElementById('viewer');
+    viewer.style.display = 'block';
 }
 
 
@@ -90,13 +99,12 @@ function run_two_uniprots(event){
     const uniprot1 = document.getElementById('Uniprot1').value;
     const uniprot2 = document.getElementById('Uniprot2').value;
 
-    const dena = document.getElementById('dena').checked;
+    const pdb_structure = document.getElementById('pdb_structure').checked;
     const iptm = document.getElementById('iptm').checked;
     const pDOCKq = document.getElementById('pDOCKq').checked;
     const ptm = document.getElementById('ptm').checked;
-    const pae = document.getElementById('pae').checked;
 
-    const checkboxList = [dena, iptm, pDOCKq, ptm, pae]
+    const checkboxList = [pdb_structure, iptm, pDOCKq, ptm]
 
     if (check_input_is_valid(uniprot1, uniprot2, checkboxList) == false) return;
 

@@ -50,8 +50,8 @@
             <div>
                 <label>What scores would you like to see?</label>
 
-                <label for="dena">
-                    <input type="checkbox" name="score" id="dena" value="dena" checked> dena_10
+                <label for="pdb_stucture">
+                    <input type="checkbox" name="score" id="pdb_structure" value="dena" checked> PDB File 
                 </label>
                 
                 <label for="iptm">
@@ -65,11 +65,6 @@
                 <label for="ptm">
                     <input type="checkbox" name="score" id="ptm" value="ptm"> Individual ptm scores
                 </label>
-
-                <label for="pae">
-                    <input type="checkbox" name="score" id="pae" value="pae"> Show PAE plots
-                </label>
-                
             </div>
 
             <div>
@@ -78,7 +73,7 @@
 
         </form>
 
-        <div id="viewer"></div>
+        <div id="viewer" style="display: none;"></div>
 
         <div id="download-container">
             <a id="download-link" style="display: none;">Download PDB File</a>
