@@ -8,12 +8,11 @@
         <meta name="description" content="A website to see the predicted interactions between all human mitochondrial proteins">
         <meta name="keywords" content="Predictions, Interactions, Predictome, Mitochondria">
         <meta name="author" content="Dimitris Kalafatis">
-
+        
         <link rel="stylesheet" href="style.css">
     </head>
 
     <body>
-        <!-- This is a comment -->
         <h1>Predictomes</h1>
         <p><small>Based on the paper <a href="images/goat.jpg" target="_blank">"Abhinav is the GOAT frfr"</a></small></p>
         <p>Basically this thing is a tool to help mitochondrial researchers do stuff. We ran alphafold about
@@ -50,8 +49,8 @@
             <div>
                 <label>What scores would you like to see?</label>
 
-                <label for="pdb_stucture">
-                    <input type="checkbox" name="score" id="pdb_structure" value="dena" checked> PDB File 
+                <label for="pdb_structure">
+                    <input type="checkbox" name="score" id="pdb_structure" value="pdb_structure" checked> PDB File 
                 </label>
                 
                 <label for="iptm">
@@ -70,15 +69,18 @@
             <div>
                 <button id="go-button">Go!</button>
             </div>
-
         </form>
 
-        <div id="viewer" style="display: none;"></div>
+        <div id="iptm-results">IPTM score will be displayed here</div>
+        <div id="pDOCKq-results">pDOCKq score will be displayed here</div>
+        <div id="ptm-results">PTM scores will be displayed here</div>
+
+        <div id="viewer" style="display: none; width: 100%; height: 400px;"></div>
 
         <div id="download-container">
             <a id="download-link" style="display: none;">Download PDB File</a>
         </div>
 
-        <script type="module" src="script.js" charset="utf-8"></script>
+        <script src="script.js" type="module" charset="utf-8"></script>
     </body>
 </html>

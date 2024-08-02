@@ -49,36 +49,97 @@ function check_input_is_valid(uniprot1, uniprot2, checkboxList){
     return is_valid;
 }
 
-function loadPDB(pdbFile) {
-    console.log("Loading PDB file:", pdbFile);
+function loadPDB(fileId) {
+    const pdbUrl = `http://127.0.0.1:5000/get_pdb/${fileId}`;
+    console.log("Loading PDB file:", pdbUrl);
     jQuery.ajax({
-        url: pdbFile,
+        url: pdbUrl,
         method: 'GET',
         success: function(data) {
-            console.log("PDB file loaded successfully");
+            console.log("PDB file loaded successfully", data);
             showViewer();
             viewer.clear();
-            const model = viewer.addModel(data, "pdb");
+            try {
+                // Ensure data is in the correct format
+                if (typeof data !== 'string') {
+                    console.error("Invalid PDB data format");
+                    return;
+                }
 
-            // Get all chains in the model
-            const chains = model.selectedAtoms({}).map(atom => atom.chain).filter((value, index, self) => self.indexOf(value) === index);
+                const model = viewer.addModel(data, "pdb");
 
-            // Apply different styles to each chain
-            const colors = ['red', 'blue']; // Add more colors if you have more than two chains
-            chains.forEach((chain, index) => {
-                viewer.setStyle({chain: chain}, {cartoon: {color: colors[index % colors.length]}});
-            });
+                // Get all chains in the model
+                const chains = model.selectedAtoms({}).map(atom => atom.chain).filter((value, index, self) => self.indexOf(value) === index);
 
-            viewer.zoomTo();
-            viewer.render();
+                // Apply different styles to each chain
+                const colors = ['red', 'blue']; // Add more colors if you have more than two chains
+                chains.forEach((chain, index) => {
+                    viewer.setStyle({chain: chain}, {cartoon: {color: colors[index % colors.length]}});
+                });
 
-            // Update the download link
-            updateDownloadLink(pdbFile);
+                viewer.zoomTo();
+                viewer.render();
+
+                // Update the download link
+                updateDownloadLink(pdbUrl);
+            } catch (error) {
+                console.error("Error rendering PDB model:", error);
+            }
         },
         error: function(xhr, status, error) {
             console.error("Failed to load PDB file:", status, error);
         }
     });
+}
+
+function run_two_uniprots(event) {
+    event.preventDefault();
+
+    const uniprot1 = document.getElementById('Uniprot1').value;
+    const uniprot2 = document.getElementById('Uniprot2').value;
+
+    const pdb_structure = document.getElementById('pdb_structure').checked;
+    const iptm = document.getElementById('iptm').checked;
+    const pDOCKq = document.getElementById('pDOCKq').checked;
+    const ptm = document.getElementById('ptm').checked;
+
+    const checkboxList = [pdb_structure, iptm, pDOCKq, ptm];
+
+    if (check_input_is_valid(uniprot1, uniprot2, checkboxList) == false) return;
+
+    fetchResults(uniprot1, uniprot2, pdb_structure, iptm, pDOCKq, ptm)
+        .then(data => {
+            console.log("Fetched data:", data);  // Log the data to debug
+            if (data && data.success) {
+                if (pdb_structure) {
+                    console.log("File ID:", data.file_id);  // Log the file ID
+                    loadPDB(data.file_id);  // Use the correct key
+                }
+                if (iptm) {
+                    const iptmResultElement = document.getElementById('iptm-results');
+                    if (iptmResultElement) {
+                        iptmResultElement.innerText = `IPTM: ${data.iptm}`;
+                    }
+                }
+                if (pDOCKq) {
+                    const pDOCKqResultElement = document.getElementById('pDOCKq-results');
+                    if (pDOCKqResultElement) {
+                        pDOCKqResultElement.innerText = `pDOCKq: ${data.pDOCKq}`;
+                    }
+                }
+                if (ptm) {
+                    const ptmResultElement = document.getElementById('ptm-results');
+                    if (ptmResultElement) {
+                        ptmResultElement.innerText = `PTM: ${data.ptm}`;
+                    }
+                }
+            } else {
+                alert('No matching document found in the database');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 function updateDownloadLink(pdbFile) {
@@ -92,23 +153,33 @@ function showViewer(){
     viewer.style.display = 'block';
 }
 
+async function fetchResults(uniprot1, uniprot2, pdb_structure, iptm, pDOCKq, ptm) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/get_results', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                uniprot1: uniprot1,
+                uniprot2: uniprot2,
+                pdb_structure: pdb_structure,
+                iptm: iptm,
+                pDOCKq: pDOCKq,
+                ptm: ptm
+            })
+        });
 
-function run_two_uniprots(event){
-    event.preventDefault();
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
 
-    const uniprot1 = document.getElementById('Uniprot1').value;
-    const uniprot2 = document.getElementById('Uniprot2').value;
-
-    const pdb_structure = document.getElementById('pdb_structure').checked;
-    const iptm = document.getElementById('iptm').checked;
-    const pDOCKq = document.getElementById('pDOCKq').checked;
-    const ptm = document.getElementById('ptm').checked;
-
-    const checkboxList = [pdb_structure, iptm, pDOCKq, ptm]
-
-    if (check_input_is_valid(uniprot1, uniprot2, checkboxList) == false) return;
-
-    updatePDB(uniprot1, uniprot2);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching results:', error);
+    }
 }
 ///////////////// INPUT PREP FUNCTIONS
 
@@ -210,4 +281,3 @@ function init() {
     const go_button = document.getElementById('go-button');
     go_button.addEventListener('click', run_two_uniprots);
 }
-
